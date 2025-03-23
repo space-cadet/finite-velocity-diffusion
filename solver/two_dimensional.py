@@ -1,7 +1,24 @@
+"""
+Two-dimensional finite velocity diffusion solver.
+
+This module implements a numerical solver for the two-dimensional 
+finite velocity diffusion equation (telegrapher's equation).
+"""
+
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union, List, Dict, Any
 
 class FiniteVelocityDiffusion2D:
+    """
+    Solver for the 2D finite velocity diffusion equation.
+    
+    This class implements a numerical solver for the telegrapher's equation:
+    τ∂²u/∂t² + ∂u/∂t = D∇²u
+    
+    The solver uses a finite difference method with a second-order accurate
+    central difference scheme for spatial derivatives.
+    """
+    
     def __init__(
         self,
         nx: int = 100,
@@ -15,7 +32,7 @@ class FiniteVelocityDiffusion2D:
         x_max: float = 10.0,
         y_min: float = 0.0,
         y_max: float = 10.0
-    ):
+    ) -> None:
         """
         Initialize the 2D finite velocity diffusion solver.
         
@@ -35,28 +52,36 @@ class FiniteVelocityDiffusion2D:
             Boundaries of spatial domain in x direction
         y_min, y_max : float
             Boundaries of spatial domain in y direction
+            
+        Raises:
+        -------
+        ValueError
+            If the configuration is numerically unstable (Courant number > 1)
         """
-        self.nx = nx
-        self.ny = ny
-        self.dx = dx
-        self.dy = dy
-        self.dt = dt
-        self.D = D
-        self.tau = tau
+        self.nx: int = nx
+        self.ny: int = ny
+        self.dx: float = dx
+        self.dy: float = dy
+        self.dt: float = dt
+        self.D: float = D
+        self.tau: float = tau
         
         # Spatial grids
-        self.x = np.linspace(x_min, x_max, nx)
-        self.y = np.linspace(y_min, y_max, ny)
+        self.x: np.ndarray = np.linspace(x_min, x_max, nx)
+        self.y: np.ndarray = np.linspace(y_min, y_max, ny)
+        self.X: np.ndarray
+        self.Y: np.ndarray
         self.X, self.Y = np.meshgrid(self.x, self.y)
         
         # Initialize solution arrays
-        self.u = np.zeros((ny, nx))  # Current solution
-        self.u_prev = np.zeros((ny, nx))  # Previous time step
-        self.u_prev2 = np.zeros((ny, nx))  # Two time steps ago
+        self.u: np.ndarray = np.zeros((ny, nx))  # Current solution
+        self.u_prev: np.ndarray = np.zeros((ny, nx))  # Previous time step
+        self.u_prev2: np.ndarray = np.zeros((ny, nx))  # Two time steps ago
+        self.u_next: np.ndarray = np.zeros((ny, nx))  # Next time step (temporary storage)
         
         # Courant numbers for stability
-        self.courant_x = np.sqrt(D * dt / (tau * dx**2))
-        self.courant_y = np.sqrt(D * dt / (tau * dy**2))
+        self.courant_x: float = np.sqrt(D * dt / (tau * dx**2))
+        self.courant_y: float = np.sqrt(D * dt / (tau * dy**2))
         
         # Check stability condition
         if self.courant_x > 1 or self.courant_y > 1:
@@ -73,6 +98,11 @@ class FiniteVelocityDiffusion2D:
         -----------
         initial_condition : np.ndarray
             Array of shape (ny, nx) containing initial values
+            
+        Raises:
+        -------
+        ValueError
+            If the initial condition array has incorrect shape
         """
         if initial_condition.shape != (self.ny, self.nx):
             raise ValueError(f"Initial condition must have shape ({self.ny}, {self.nx})")
@@ -120,6 +150,9 @@ class FiniteVelocityDiffusion2D:
     def step(self) -> None:
         """
         Perform one time step of the simulation.
+        
+        This method advances the solution by one time step using a finite difference
+        scheme for the telegrapher's equation.
         """
         # Compute spatial derivatives using central differences
         d2u_dx2 = np.zeros_like(self.u)
@@ -167,4 +200,66 @@ class FiniteVelocityDiffusion2D:
         """
         for _ in range(num_steps):
             self.step()
-        return self.X, self.Y, self.u 
+        return self.X, self.Y, self.u
+    
+    def get_propagation_speed(self) -> float:
+        """
+        Calculate the finite propagation speed for the simulation.
+        
+        In the finite velocity diffusion (telegrapher's equation), the
+        propagation speed is given by sqrt(D/tau).
+        
+        Returns:
+        --------
+        float
+            Propagation speed
+        """
+        return np.sqrt(self.D / self.tau)
+    
+    def get_solution_state(self) -> Dict[str, np.ndarray]:
+        """
+        Get the current state of the solution.
+        
+        Returns:
+        --------
+        Dict[str, np.ndarray]
+            Dictionary containing the current solution state
+        """
+        return {
+            "x": self.x,
+            "y": self.y,
+            "X": self.X,
+            "Y": self.Y,
+            "u": self.u.copy(),
+            "u_prev": self.u_prev.copy(),
+            "u_prev2": self.u_prev2.copy()
+        }
+    
+    def set_solution_state(self, state: Dict[str, np.ndarray]) -> None:
+        """
+        Set the solution state from a previously saved state.
+        
+        Parameters:
+        -----------
+        state : Dict[str, np.ndarray]
+            Dictionary containing the solution state
+            
+        Raises:
+        -------
+        ValueError
+            If the state arrays have incorrect shapes
+        """
+        if state["x"].shape != self.x.shape:
+            raise ValueError(f"x grid mismatch: expected {self.x.shape}, got {state['x'].shape}")
+        
+        if state["y"].shape != self.y.shape:
+            raise ValueError(f"y grid mismatch: expected {self.y.shape}, got {state['y'].shape}")
+        
+        for key in ["u", "u_prev", "u_prev2"]:
+            if key in state and state[key].shape != (self.ny, self.nx):
+                raise ValueError(f"{key} has incorrect shape: expected ({self.ny}, {self.nx}), got {state[key].shape}")
+        
+        # Set the solution state
+        self.u = state["u"].copy()
+        self.u_prev = state["u_prev"].copy()
+        self.u_prev2 = state["u_prev2"].copy()
