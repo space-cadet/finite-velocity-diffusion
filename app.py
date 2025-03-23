@@ -1,17 +1,18 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-from solver import FiniteVelocityDiffusion1D, FiniteVelocityDiffusion2D
-from visualization.plotting import (
-    plot_1d_comparison,
-    plot_2d_heatmap,
-    plot_time_series
-)
+from solver.one_dimensional import FiniteVelocityDiffusion1D
+from solver.two_dimensional import FiniteVelocityDiffusion2D
 from utils import (
     gaussian_initial_condition,
     classical_diffusion_solution,
     calculate_propagation_speed,
     DEFAULT_PARAMETERS
+)
+from visualization.plotting import (
+    plot_1d_comparison,
+    plot_2d_heatmap,
+    plot_time_series
 )
 
 st.set_page_config(page_title="Finite Velocity Diffusion Solver", layout="wide")
@@ -99,7 +100,7 @@ if dimension == "1D":
     initial_condition = gaussian_initial_condition(
         solver.x,
         amplitude=amplitude,
-        center=(solver.x_max + solver.x_min) / 2,
+        center=(solver.x[-1] + solver.x[0]) / 2,  # Center of domain
         sigma=sigma
     )
     solver.set_initial_condition(initial_condition)
@@ -139,7 +140,7 @@ if dimension == "1D":
         t,
         D,
         initial_amplitude=amplitude,
-        initial_center=(solver.x_max + solver.x_min) / 2,
+        initial_center=(solver.x[-1] + solver.x[0]) / 2,  # Center of domain
         initial_sigma=sigma
     )
     
@@ -182,7 +183,7 @@ else:  # 2D case
         solver.x,
         solver.y,
         amplitude=amplitude,
-        center=((solver.x_max + solver.x_min) / 2, (solver.y_max + solver.y_min) / 2),
+        center=((solver.x[-1] + solver.x[0]) / 2, (solver.y[-1] + solver.y[0]) / 2),  # Center of domain
         sigma=(sigma, sigma)
     )
     solver.set_initial_condition(initial_condition)
