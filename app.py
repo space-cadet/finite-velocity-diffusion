@@ -225,26 +225,101 @@ if dimension == "1D":
             ax.grid(True)
             st.pyplot(fig)
             
-        elif viz_type == "Animation":
-            # Create animation
+        elif viz_type == "Plotly Animation":
+            # Create Plotly animation
             st.subheader("Animated Time Evolution")
             
-            # Create animation using the animation module
-            ani = create_1d_animation(
-                x=x,
-                solutions=solutions,
-                times=times,
+            # Create the Plotly figure for animation
+            fig = go.Figure()
+            
+            # Add traces for each time step
+            for i, (t, sol) in enumerate(zip(times, solutions)):
+                visible = (i == 0)  # Only first frame is visible initially
+                fig.add_trace(
+                    go.Scatter(
+                        x=x,
+                        y=sol,
+                        mode='lines',
+                        name=f'Time {t:.4f}',
+                        line=dict(width=2, color='blue'),
+                        visible=visible
+                    )
+                )
+            
+            # Create frames for animation
+            frames = []
+            for i, t in enumerate(times):
+                frames.append(
+                    go.Frame(
+                        data=[go.Scatter(x=x, y=solutions[i])],
+                        name=f"frame_{i}",
+                        layout=go.Layout(title_text=f"Time: {t:.4f}")
+                    )
+                )
+            
+            fig.frames = frames
+            
+            # Add buttons for animation control
+            fig.update_layout(
                 title="Finite Velocity Diffusion Evolution",
-                interval=animation_interval
+                xaxis_title="Position",
+                yaxis_title="Concentration",
+                updatemenus=[{
+                    "type": "buttons",
+                    "buttons": [
+                        {
+                            "label": "Play",
+                            "method": "animate",
+                            "args": [None, {"frame": {"duration": 1000 // animation_speed, "redraw": True},
+                                          "fromcurrent": True,
+                                          "transition": {"duration": 0}}]
+                        },
+                        {
+                            "label": "Pause",
+                            "method": "animate",
+                            "args": [[None], {"frame": {"duration": 0, "redraw": True},
+                                            "mode": "immediate",
+                                            "transition": {"duration": 0}}]
+                        }
+                    ],
+                    "direction": "left",
+                    "pad": {"l": 10, "t": 10},
+                    "showactive": False,
+                    "x": 0.1,
+                    "y": 0,
+                    "xanchor": "right",
+                    "yanchor": "top"
+                }],
+                sliders=[{
+                    "steps": [
+                        {
+                            "label": f"{t:.3f}",
+                            "method": "animate",
+                            "args": [[f"frame_{i}"], {"frame": {"duration": 0, "redraw": True},
+                                                    "mode": "immediate",
+                                                    "transition": {"duration": 0}}]
+                        }
+                        for i, t in enumerate(times)
+                    ],
+                    "active": 0,
+                    "yanchor": "top",
+                    "xanchor": "left",
+                    "currentvalue": {
+                        "visible": True,
+                        "prefix": "Time: ",
+                        "xanchor": "right",
+                        "font": {"size": 16}
+                    },
+                    "transition": {"duration": 0},
+                    "pad": {"l": 50, "t": 50},
+                    "len": 0.9,
+                    "x": 0.1,
+                    "y": 0
+                }]
             )
             
-            # Display the animation
-            # The ani object doesn't have a fig attribute, we need to access the figure used to create it
-            animation_container = st.empty()
-            with animation_container:
-                st.pyplot(plt.gcf())  # Get current figure which contains the animation
-                
-            st.write("Note: Animation may not be smooth in Streamlit. For best results, use the Interactive Slider option.")
+            # Show the plot
+            st.plotly_chart(fig, use_container_width=True)
     
 else:  # 2D case
     solver = FiniteVelocityDiffusion2D(
@@ -361,27 +436,116 @@ else:  # 2D case
             )
             st.pyplot(fig)
         
-        elif viz_type == "Animation":
-            # Create animation
+        elif viz_type == "Plotly Animation":
+            # Create Plotly animation for 2D
             st.subheader("Animated Time Evolution")
             
-            # Create animation using the animation module
-            ani = create_2d_animation(
-                X=X,
-                Y=Y,
-                solutions=solutions,
-                times=times,
+            # Create a Plotly figure for animation
+            fig = go.Figure()
+            
+            # Create contour plots for each time step
+            for i, (t, sol) in enumerate(zip(times, solutions)):
+                # Only first frame is visible initially
+                visible = (i == 0)
+                
+                # Add a contour trace
+                fig.add_trace(
+                    go.Contour(
+                        z=sol,
+                        x=solver.x,  # 1D array for x-coordinates
+                        y=solver.y,  # 1D array for y-coordinates
+                        colorscale='viridis',
+                        visible=visible,
+                        contours=dict(
+                            showlabels=True,
+                            labelfont=dict(size=12, color='white')
+                        ),
+                        colorbar=dict(
+                            title="Concentration",
+                            titleside="right"
+                        )
+                    )
+                )
+            
+            # Create frames for animation
+            frames = []
+            for i, t in enumerate(times):
+                frames.append(
+                    go.Frame(
+                        data=[go.Contour(
+                            z=solutions[i],
+                            x=solver.x,
+                            y=solver.y,
+                            colorscale='viridis',
+                        )],
+                        name=f"frame_{i}",
+                        layout=go.Layout(title_text=f"Time: {t:.4f}")
+                    )
+                )
+            
+            fig.frames = frames
+            
+            # Add buttons for animation control
+            fig.update_layout(
                 title="2D Finite Velocity Diffusion Evolution",
-                interval=animation_interval
+                xaxis_title="X Position",
+                yaxis_title="Y Position",
+                updatemenus=[{
+                    "type": "buttons",
+                    "buttons": [
+                        {
+                            "label": "Play",
+                            "method": "animate",
+                            "args": [None, {"frame": {"duration": 1000 // animation_speed, "redraw": True},
+                                          "fromcurrent": True,
+                                          "transition": {"duration": 0}}]
+                        },
+                        {
+                            "label": "Pause",
+                            "method": "animate",
+                            "args": [[None], {"frame": {"duration": 0, "redraw": True},
+                                            "mode": "immediate",
+                                            "transition": {"duration": 0}}]
+                        }
+                    ],
+                    "direction": "left",
+                    "pad": {"l": 10, "t": 10},
+                    "showactive": False,
+                    "x": 0.1,
+                    "y": 0,
+                    "xanchor": "right",
+                    "yanchor": "top"
+                }],
+                sliders=[{
+                    "steps": [
+                        {
+                            "label": f"{t:.3f}",
+                            "method": "animate",
+                            "args": [[f"frame_{i}"], {"frame": {"duration": 0, "redraw": True},
+                                                    "mode": "immediate",
+                                                    "transition": {"duration": 0}}]
+                        }
+                        for i, t in enumerate(times)
+                    ],
+                    "active": 0,
+                    "yanchor": "top",
+                    "xanchor": "left",
+                    "currentvalue": {
+                        "visible": True,
+                        "prefix": "Time: ",
+                        "xanchor": "right",
+                        "font": {"size": 16}
+                    },
+                    "transition": {"duration": 0},
+                    "pad": {"l": 50, "t": 50},
+                    "len": 0.9,
+                    "x": 0.1,
+                    "y": 0
+                }]
             )
             
-            # Display the animation
-            # The ani object doesn't have a fig attribute, we need to access the figure used to create it
-            animation_container = st.empty()
-            with animation_container:
-                st.pyplot(plt.gcf())  # Get current figure which contains the animation
-                
-            st.write("Note: Animation may not be smooth in Streamlit. For best results, use the Interactive Slider option.")
+            # Show the plot
+            st.plotly_chart(fig, use_container_width=True)
     
     else:
         # Solve normally
