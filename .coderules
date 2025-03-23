@@ -1,0 +1,93 @@
+# Project Intelligence: Finite Velocity Diffusion Solver
+
+## Project Patterns
+
+### Code Organization
+- Maintain clear separation between solver logic, simulation management, and UI components
+- Keep core numerical algorithms in the `solver/` directory
+- Place visualization code in the `visualization/` directory
+- Streamlit UI components belong in the `streamlit_ui/` directory
+- Simulation workflows and configuration in the `simulation/` directory
+
+### Naming Conventions
+- Class names use CamelCase (e.g., `FiniteVelocityDiffusion1D`)
+- Function and variable names use snake_case (e.g., `run_1d_simulation`)
+- Constants use UPPER_SNAKE_CASE
+- Module names use lowercase with underscores
+- Descriptive names are preferred over abbreviations
+
+### Documentation Style
+- Docstrings follow NumPy style
+- Include parameter descriptions, return values, and raised exceptions
+- Module-level docstrings explain the purpose and content of the module
+- Complex algorithms include mathematical explanations and references
+
+### Error Handling
+- Validate input parameters before computation
+- Check stability conditions and raise ValueError with helpful messages
+- Provide progress feedback for long-running operations
+- Gracefully handle boundary cases
+
+## Implementation Notes
+
+### Solver Implementation
+- Explicit finite difference scheme used for educational clarity
+- Central differences for spatial derivatives (second-order accuracy)
+- Forward Euler for first-order time derivative
+- Neumann boundary conditions as default
+
+### Stability Considerations
+- Courant condition must be satisfied: `sqrt(D*dt/(tau*dx^2)) <= 1`
+- Decrease time step or increase spatial step if stability issues arise
+- Parameter ranges in UI should prevent unstable configurations
+
+### Visualization Approaches
+- Static plots for simple analysis
+- Interactive sliders for detailed inspection of time points
+- Animations for demonstrating dynamic behavior
+- Comparisons between classical and finite velocity solutions where applicable
+
+### Performance Insights
+- 2D simulations are significantly more computationally intensive than 1D
+- Time evolution storage can consume substantial memory for many time steps
+- Consider reducing resolution for interactive explorations
+- Animations benefit from fewer, more strategically chosen time points
+
+## User Preferences
+
+### Interface Design
+- Clean, minimalist interface focusing on the visualizations
+- Clear labeling of parameters and their effects
+- Sidebar for controls, main area for visualization
+- Educational information provided at the bottom of the interface
+
+### Parameter Defaults
+- Choose parameter defaults that showcase wave-like diffusion behavior
+- Ensure default configurations are numerically stable
+- Balance between computational speed and resolution
+
+### Documentation Approach
+- Focus on educational value of the implementation
+- Explain the physics behind the equations
+- Highlight the differences between classical and finite velocity diffusion
+- Include references to relevant literature
+
+## Development Workflow
+
+### Environment Setup
+- Use virtual environment (.venv) for dependency isolation
+- Requirements specified in requirements.txt
+- Python 3.8+ recommended
+
+### Testing Strategy
+- Test solver implementations against known analytical solutions
+- Verify conservation properties for appropriate initial conditions
+- Check stability across parameter ranges
+- Validate boundary condition implementations
+
+### Version Control
+- Feature branches for new functionality
+- Clear commit messages describing changes
+- Keep the main branch stable and functional
+
+This project intelligence document will be updated as new patterns, preferences, and insights emerge during development.
