@@ -1,6 +1,8 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from solver.one_dimensional import FiniteVelocityDiffusion1D
 from solver.two_dimensional import FiniteVelocityDiffusion2D
 from utils import (
@@ -79,10 +81,27 @@ show_evolution = st.sidebar.checkbox("Show Time Evolution", value=False)
 if show_evolution:
     evolution_steps = st.sidebar.slider(
         "Number of Time Points to Show",
-        min_value=2,
-        max_value=10,
-        value=5
+        min_value=5,
+        max_value=50,
+        value=20
     )
+    
+    # Visualization options
+    st.sidebar.markdown("### Visualization Options")
+    viz_type = st.sidebar.radio(
+        "Visualization Type",
+        ["Static Plots", "Interactive Slider", "Plotly Animation"],
+        index=0
+    )
+    
+    if viz_type == "Plotly Animation":
+        animation_speed = st.sidebar.slider(
+            "Animation Speed (frames per second)",
+            min_value=1,
+            max_value=30,
+            value=10,
+            step=1
+        )
 
 # Create solver
 if dimension == "1D":
@@ -105,13 +124,18 @@ if dimension == "1D":
     )
     solver.set_initial_condition(initial_condition)
     
-    # Show time evolution if requested
+    # Common computation code for all visualization types
+    # This optimizes by computing solutions once and reusing them
+    x = solver.x
+    times = []
+    solutions = []
+    
+    # Progress bar for simulation
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
     if show_evolution:
-        # Store solutions at different time points
-        times = []
-        solutions = []
-        
-        # Calculate step size for evolution plots
+        # Calculate step size for evolution plots/animation
         step_size = max(1, num_steps // evolution_steps)
         
         # Run solver and capture intermediate results
@@ -125,13 +149,23 @@ if dimension == "1D":
                 solver.solve(step_size)
                 times.append(i * DEFAULT_PARAMETERS['dt'])
                 solutions.append(solver.u.copy())
+                
+                # Update progress
+                progress = min(1.0, i / num_steps)
+                progress_bar.progress(progress)
+                status_text.text(f"Computing solution: {int(progress * 100)}% complete")
         
-        # Final result
-        x = solver.x
+        # Final result is the last solution
         u = solutions[-1]
+        
+        # Clear status
+        status_text.empty()
     else:
         # Solve normally
+        status_text.text("Computing solution...")
         x, u = solver.solve(num_steps)
+        progress_bar.progress(1.0)
+        status_text.empty()
     
     # Compute classical diffusion solution for comparison
     t = num_steps * DEFAULT_PARAMETERS['dt']
@@ -155,13 +189,62 @@ if dimension == "1D":
     
     # Plot time evolution if requested
     if show_evolution:
-        fig, _ = plot_time_series(
-            times=times,
-            solutions=solutions,
-            x=x,
-            title="Time Evolution of Finite Velocity Diffusion"
-        )
-        st.pyplot(fig)
+        if viz_type == "Static Plots":
+            # Use the existing static plot
+            fig, _ = plot_time_series(
+                times=times,
+                solutions=solutions,
+                x=x,
+                title="Time Evolution of Finite Velocity Diffusion"
+            )
+            st.pyplot(fig)
+            
+        elif viz_type == "Interactive Slider":
+            # Create an interactive slider for time steps
+            st.subheader("Interactive Time Evolution")
+            
+            # Create a slider for the time index
+            time_idx = st.slider(
+                "Time", 
+                min_value=0, 
+                max_value=len(times)-1, 
+                value=0,
+                format=f"t = %f"
+            )
+            
+            # Get the solution at the selected time
+            selected_time = times[time_idx]
+            selected_solution = solutions[time_idx]
+            
+            # Plot the selected solution
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.plot(x, selected_solution, 'b-', linewidth=2)
+            ax.set_xlabel('Position')
+            ax.set_ylabel('Concentration')
+            ax.set_title(f'Solution at Time = {selected_time:.4f}')
+            ax.grid(True)
+            st.pyplot(fig)
+            
+        elif viz_type == "Animation":
+            # Create animation
+            st.subheader("Animated Time Evolution")
+            
+            # Create animation using the animation module
+            ani = create_1d_animation(
+                x=x,
+                solutions=solutions,
+                times=times,
+                title="Finite Velocity Diffusion Evolution",
+                interval=animation_interval
+            )
+            
+            # Display the animation
+            # The ani object doesn't have a fig attribute, we need to access the figure used to create it
+            animation_container = st.empty()
+            with animation_container:
+                st.pyplot(plt.gcf())  # Get current figure which contains the animation
+                
+            st.write("Note: Animation may not be smooth in Streamlit. For best results, use the Interactive Slider option.")
     
 else:  # 2D case
     solver = FiniteVelocityDiffusion2D(
@@ -188,13 +271,17 @@ else:  # 2D case
     )
     solver.set_initial_condition(initial_condition)
     
-    # Show time evolution if requested
+    # Common computation code for both static and dynamic visualizations
+    X, Y = solver.X, solver.Y
+    times = []
+    solutions = []
+    
+    # Progress bar for simulation
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
     if show_evolution:
-        # Store solutions at different time points
-        times = []
-        solutions = []
-        
-        # Calculate step size for evolution plots
+        # Calculate step size for evolution plots/animation
         step_size = max(1, num_steps // evolution_steps)
         
         # Run solver and capture intermediate results
@@ -208,38 +295,100 @@ else:  # 2D case
                 solver.solve(step_size)
                 times.append(i * DEFAULT_PARAMETERS['dt'])
                 solutions.append(solver.u.copy())
+                
+                # Update progress
+                progress = min(1.0, i / num_steps)
+                progress_bar.progress(progress)
+                status_text.text(f"Computing solution: {int(progress * 100)}% complete")
         
-        # Final result
-        X, Y, u = solver.X, solver.Y, solutions[-1]
+        # Final result is the last solution
+        u = solutions[-1]
         
-        # Create tabs for different visualizations
-        tab1, tab2 = st.tabs(["Final Result", "Time Evolution"])
+        # Clear status
+        status_text.empty()
         
-        with tab1:
-            # Plot final results
-            fig, _ = plot_2d_heatmap(
-                X=X,
-                Y=Y,
-                u=u,
-                title='2D Finite Velocity Diffusion (Final State)'
-            )
-            st.pyplot(fig)
-        
-        with tab2:
-            # Plot time evolution as multiple heatmaps
-            st.subheader("Time Evolution of 2D Diffusion")
-            for i, (t, sol) in enumerate(zip(times, solutions)):
-                st.write(f"Time: {t:.3f}")
+        # Create visualizations based on selected type
+        if viz_type == "Static Plots":
+            # Create tabs for different visualizations
+            tab1, tab2 = st.tabs(["Final Result", "Time Evolution"])
+            
+            with tab1:
+                # Plot final results
                 fig, _ = plot_2d_heatmap(
                     X=X,
                     Y=Y,
-                    u=sol,
-                    title=f'Time = {t:.3f}'
+                    u=u,
+                    title='2D Finite Velocity Diffusion (Final State)'
                 )
                 st.pyplot(fig)
+            
+            with tab2:
+                # Plot time evolution as multiple heatmaps
+                st.subheader("Time Evolution of 2D Diffusion")
+                for i, (t, sol) in enumerate(zip(times, solutions)):
+                    st.write(f"Time: {t:.3f}")
+                    fig, _ = plot_2d_heatmap(
+                        X=X,
+                        Y=Y,
+                        u=sol,
+                        title=f'Time = {t:.3f}'
+                    )
+                    st.pyplot(fig)
+        
+        elif viz_type == "Interactive Slider":
+            # Create an interactive slider for time steps
+            st.subheader("Interactive Time Evolution")
+            
+            # Create a slider for the time index
+            time_idx = st.slider(
+                "Time", 
+                min_value=0, 
+                max_value=len(times)-1, 
+                value=0,
+                format=f"t = %f"
+            )
+            
+            # Get the solution at the selected time
+            selected_time = times[time_idx]
+            selected_solution = solutions[time_idx]
+            
+            # Plot the selected solution
+            fig, _ = plot_2d_heatmap(
+                X=X,
+                Y=Y,
+                u=selected_solution,
+                title=f'2D Solution at Time = {selected_time:.4f}'
+            )
+            st.pyplot(fig)
+        
+        elif viz_type == "Animation":
+            # Create animation
+            st.subheader("Animated Time Evolution")
+            
+            # Create animation using the animation module
+            ani = create_2d_animation(
+                X=X,
+                Y=Y,
+                solutions=solutions,
+                times=times,
+                title="2D Finite Velocity Diffusion Evolution",
+                interval=animation_interval
+            )
+            
+            # Display the animation
+            # The ani object doesn't have a fig attribute, we need to access the figure used to create it
+            animation_container = st.empty()
+            with animation_container:
+                st.pyplot(plt.gcf())  # Get current figure which contains the animation
+                
+            st.write("Note: Animation may not be smooth in Streamlit. For best results, use the Interactive Slider option.")
+    
     else:
         # Solve normally
+        status_text.text("Computing solution...")
         X, Y, u = solver.solve(num_steps)
+        progress_bar.progress(1.0)
+        status_text.empty()
         
         # Plot results using visualization module
         fig, _ = plot_2d_heatmap(
