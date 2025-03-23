@@ -440,43 +440,38 @@ else:  # 2D case
             # Create Plotly animation for 2D
             st.subheader("Animated Time Evolution")
             
-            # Create a Plotly figure for animation
+            # Try a different approach for 2D animation using heatmap instead of contour
             fig = go.Figure()
             
-            # Create contour plots for each time step
-            for i, (t, sol) in enumerate(zip(times, solutions)):
-                # Only first frame is visible initially
-                visible = (i == 0)
-                
-                # Add a contour trace
-                fig.add_trace(
-                    go.Contour(
-                        z=sol,
-                        x=solver.x,  # 1D array for x-coordinates
-                        y=solver.y,  # 1D array for y-coordinates
-                        colorscale='viridis',
-                        visible=visible,
-                        contours=dict(
-                            showlabels=True,
-                            labelfont=dict(size=12, color='white')
-                        ),
-                        colorbar=dict(
-                            title="Concentration",
-                            titleside="right"
-                        )
-                    )
-                )
+            # Find global min and max for consistent color scale
+            vmin = min(np.min(sol) for sol in solutions)
+            vmax = max(np.max(sol) for sol in solutions)
             
-            # Create frames for animation
+            # Create heatmap for each time step (only first one visible initially)
+            fig.add_trace(
+                go.Heatmap(
+                    z=solutions[0],
+                    x=solver.x,
+                    y=solver.y,
+                    colorscale='viridis',
+                    zmin=vmin,
+                    zmax=vmax,
+                    colorbar=dict(title="Concentration")
+                )
+            )
+            
+            # Create frames for animation using heatmap
             frames = []
             for i, t in enumerate(times):
                 frames.append(
                     go.Frame(
-                        data=[go.Contour(
+                        data=[go.Heatmap(
                             z=solutions[i],
                             x=solver.x,
                             y=solver.y,
                             colorscale='viridis',
+                            zmin=vmin,
+                            zmax=vmax
                         )],
                         name=f"frame_{i}",
                         layout=go.Layout(title_text=f"Time: {t:.4f}")
