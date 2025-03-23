@@ -4,12 +4,15 @@ Streamlit app for the finite velocity diffusion solver.
 This app allows users to explore solutions to the finite velocity diffusion
 equation (telegrapher's equation) in both 1D and 2D, and compare them with
 classical diffusion solutions.
+
+Parameter settings are persisted between sessions using file-based storage.
 """
 
 import streamlit as st
 
 # Local imports
 from streamlit_ui.sidebar import create_sidebar_controls, display_simulation_info
+from streamlit_ui.state_management import initialize_session_state
 from streamlit_ui.main import create_main_content, create_progress_indicators, display_equations_info
 from simulation.streamlit_simulation import run_1d_simulation, run_2d_simulation
 from visualization.streamlit_visualization import (

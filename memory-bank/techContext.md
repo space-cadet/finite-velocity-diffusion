@@ -74,7 +74,8 @@ finite-velocity-diffusion/
 ├── streamlit_ui/              # UI components
 │   ├── __init__.py
 │   ├── main.py                # Main UI layout
-│   └── sidebar.py             # Sidebar controls
+│   ├── sidebar.py             # Sidebar controls
+│   └── state_management.py    # User session state persistence
 │
 └── visualization/             # Visualization components
     ├── __init__.py

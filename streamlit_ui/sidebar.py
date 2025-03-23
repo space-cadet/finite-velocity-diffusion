@@ -1,31 +1,44 @@
 """
 Sidebar UI components for the Streamlit finite velocity diffusion app.
+This module handles parameter input and persistence between sessions.
 """
 
 import streamlit as st
 import numpy as np
 from utils import DEFAULT_PARAMETERS, calculate_propagation_speed
+from streamlit_ui.state_management import initialize_session_state, save_parameters, get_parameter_key
 
 def create_sidebar_controls():
     """
     Create and render the sidebar controls for parameter adjustment.
+    Loads previously saved values from session state and saves new selections.
     
     Returns:
     --------
     dict
         Dictionary containing the user-selected parameters
     """
+    # Initialize session state with saved parameters (or defaults if none saved)
+    saved_params = initialize_session_state()
+    
     st.sidebar.header("Simulation Parameters")
+    
+    # Add a small note about persistence
+    st.sidebar.caption("Parameter settings are remembered between sessions")
 
     # Dimension selection
-    dimension = st.sidebar.radio("Select Dimension", ["1D", "2D"])
+    dimension = st.sidebar.radio(
+        "Select Dimension", 
+        ["1D", "2D"], 
+        index=0 if saved_params["dimension"] == "1D" else 1
+    )
 
     # Physical parameters
     D = st.sidebar.slider(
         "Diffusion Coefficient (D)",
         min_value=0.1,
         max_value=5.0,
-        value=DEFAULT_PARAMETERS['D'],
+        value=saved_params["D"],
         step=0.1
     )
 
@@ -33,7 +46,7 @@ def create_sidebar_controls():
         "Relaxation Time (τ)",
         min_value=0.1,
         max_value=5.0,
-        value=DEFAULT_PARAMETERS['tau'],
+        value=saved_params["tau"],
         step=0.1
     )
 
@@ -42,7 +55,7 @@ def create_sidebar_controls():
         "Initial Amplitude",
         min_value=0.1,
         max_value=2.0,
-        value=1.0,
+        value=saved_params["amplitude"],
         step=0.1
     )
 
@@ -50,7 +63,7 @@ def create_sidebar_controls():
         "Initial Standard Deviation",
         min_value=0.1,
         max_value=2.0,
-        value=1.0,
+        value=saved_params["sigma"],
         step=0.1
     )
 
@@ -59,12 +72,16 @@ def create_sidebar_controls():
         "Number of Time Steps",
         min_value=10,
         max_value=1000,
-        value=100,
+        value=saved_params["num_steps"],
         step=10
     )
 
     # Show time evolution
-    show_evolution = st.sidebar.checkbox("Show Time Evolution", value=False)
+    show_evolution = st.sidebar.checkbox(
+        "Show Time Evolution", 
+        value=saved_params["show_evolution"]
+    )
+    
     evolution_steps = None
     viz_type = None
     animation_speed = None
@@ -74,15 +91,18 @@ def create_sidebar_controls():
             "Number of Time Points to Show",
             min_value=5,
             max_value=50,
-            value=20
+            value=saved_params["evolution_steps"]
         )
         
         # Visualization options
         st.sidebar.markdown("### Visualization Options")
+        viz_options = ["Static Plots", "Interactive Slider", "Plotly Animation"]
+        viz_index = viz_options.index(saved_params["viz_type"]) if saved_params["viz_type"] in viz_options else 0
+        
         viz_type = st.sidebar.radio(
             "Visualization Type",
-            ["Static Plots", "Interactive Slider", "Plotly Animation"],
-            index=0
+            viz_options,
+            index=viz_index
         )
         
         if viz_type == "Plotly Animation":
@@ -90,12 +110,12 @@ def create_sidebar_controls():
                 "Animation Speed (frames per second)",
                 min_value=1,
                 max_value=30,
-                value=10,
+                value=saved_params["animation_speed"],
                 step=1
             )
 
-    # Return all parameters as a dictionary
-    return {
+    # Create parameter dictionary
+    params = {
         "dimension": dimension,
         "D": D,
         "tau": tau,
@@ -107,6 +127,18 @@ def create_sidebar_controls():
         "viz_type": viz_type,
         "animation_speed": animation_speed,
     }
+    
+    # Save parameters to session state for persistence
+    save_parameters(params)
+    
+    # Add reset button
+    if st.sidebar.button("Reset to Defaults"):
+        # Clear saved parameters from localStorage and session state
+        from streamlit_ui.state_management import clear_saved_parameters
+        clear_saved_parameters()
+        st.rerun()
+    
+    return params
 
 def display_simulation_info(params):
     """

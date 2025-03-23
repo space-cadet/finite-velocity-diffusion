@@ -60,6 +60,7 @@
 - Clear labeling of parameters and their effects
 - Sidebar for controls, main area for visualization
 - Educational information provided at the bottom of the interface
+- Parameter persistence between sessions using file-based storage for robust persistence
 
 ### Parameter Defaults
 - Choose parameter defaults that showcase wave-like diffusion behavior

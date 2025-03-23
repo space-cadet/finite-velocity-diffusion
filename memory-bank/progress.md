@@ -23,6 +23,7 @@
 - ✅ Time evolution options
 - ✅ Dynamic progress indicators
 - ✅ Equation information display
+- ✅ Parameter persistence between sessions using file-based storage
 
 ## Work in Progress
 

@@ -6,7 +6,7 @@ The project is currently in a functional state with operational 1D and 2D solver
 
 1. **Documentation Improvement**: Creating comprehensive memory bank documentation to enable future development
 2. **Potential Optimizations**: Identifying opportunities to enhance performance, especially for 2D simulations
-3. **UI Refinements**: Exploring improvements to the user interface for better usability
+3. **UI Refinements**: Implementing improvements to the user interface for better usability, including parameter persistence between sessions using file-based storage
 4. **Visualization Enhancements**: Considering additional visualization options or improvements
 
 ## Recent Changes
@@ -14,6 +14,7 @@ The project is currently in a functional state with operational 1D and 2D solver
 1. **Memory Bank Setup**: Creation of the memory bank documentation system to facilitate development continuity
 2. **Project Structure Documentation**: Comprehensive mapping of the existing codebase structure and organization
 3. **Core Algorithm Documentation**: Detailed explanation of the solver implementations and their theoretical basis
+4. **Parameter Persistence**: Implementation of file-based persistence to remember user settings between sessions
 
 ## Active Decisions
 

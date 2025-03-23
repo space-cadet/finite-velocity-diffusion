@@ -51,6 +51,7 @@ Organized into modular components:
 - **Main Content**: Primary display area for visualizations and results
 - **Sidebar Controls**: Parameter inputs and simulation options
 - **Visualization Components**: Various plot types and display options
+- **State Management**: Persistence of user settings between sessions using file-based storage
 
 ### 4. Utilities and Helpers
 

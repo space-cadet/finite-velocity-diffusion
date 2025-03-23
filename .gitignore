@@ -79,3 +79,4 @@ Thumbs.db
 *.pid
 *.seed
 *.pid.lock
+saved_params.json
