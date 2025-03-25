@@ -129,12 +129,16 @@ Common functionality used across the system:
    - Error analysis tools
    - Educational information about numerical properties
 
-4. **Graph Diffusion Page (03_Graph_Diffusion.py)** (Planned):
-   - Graph construction and visualization
-   - Ordinary diffusion on graphs
-   - Finite-velocity diffusion on graphs
-   - Optional: Diffusion with potential term
-   - Comparative analysis between different diffusion models on graphs
+4. **Graph Diffusion Page (03_Graph_Diffusion.py)**:
+   - Graph construction and visualization (implemented)
+   - Multiple graph types: grid, triangular, hexagonal, Erdős–Rényi, Barabási–Albert, custom graphs
+   - Static and interactive 2D/3D visualization options
+   - Graph metrics and node coloring by various properties
+   - Sidebar for graph construction controls
+   - Ordinary diffusion on graphs (planned)
+   - Finite-velocity diffusion on graphs (planned)
+   - Optional: Diffusion with potential term (planned)
+   - Comparative analysis between different diffusion models on graphs (planned)
 
 5. **Component Structure**:
    - Each page has a dedicated components module

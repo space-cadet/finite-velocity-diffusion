@@ -58,11 +58,11 @@ finite-velocity-diffusion/
 ├── pages/                     # Additional pages for the multipage app
 │   ├── 01_Parameter_Analysis.py   # Parameter analysis tools
 │   ├── 02_Numerical_Analysis.py   # Numerical analysis tools
-│   ├── 03_Graph_Diffusion.py      # Graph diffusion tools (planned)
+│   ├── 03_Graph_Diffusion.py      # Graph diffusion tools
 │   └── components/                # Reusable UI components for pages
 │       ├── parameter_analysis.py  # Parameter analysis components
 │       ├── numerical_analysis.py  # Numerical analysis components
-│       └── graph_diffusion.py     # Graph diffusion components (planned)
+│       └── graph_diffusion.py     # Graph diffusion components
 │
 ├── saved_params.json          # Persistent storage for user parameters
 ├── minimal_app.py             # Simplified version of the app
@@ -94,7 +94,7 @@ finite-velocity-diffusion/
 └── visualization/             # Visualization components
     ├── __init__.py
     ├── streamlit_visualization.py  # Visualization functions for Streamlit
-    └── graph_visualization.py      # Graph visualization functions (planned)
+    └── graph_visualization.py      # Graph visualization functions
 ```
 
 ## Technical Constraints
@@ -133,13 +133,16 @@ finite-velocity-diffusion/
    - Multipage app structure for organizing different types of functionality
    - Reactive programming model simplifies state management
    - Component-based design for UI modularity
+   - Strategic use of sidebar for controls and main area for visualizations
 
 3. **Visualization Strategy**:
    - Multiple visualization options to accommodate different needs:
      - Static plots for simple analysis and export
      - Interactive sliders for detailed inspection
      - Animations for dynamic behavior demonstration
+     - 2D and 3D interactive graph visualizations for graph-based diffusion
    - Parameter analysis tools with interactive visualization
+   - Graph visualization with various node coloring options (degree, centrality, etc.)
 
 4. **State Management**:
    - Stateful solver objects to maintain solution across time steps
