@@ -129,6 +129,11 @@ def create_diffusion_simulation_ui():
             step=0.1,
             key="amplitude"
         )
+        
+        # Apply button for initial condition
+        # This allows users to visualize the initial condition without running a full simulation
+        if st.button("Apply Initial Condition", key="apply_ic"):
+            apply_initial_condition()
     
     # Simulation control
     with st.expander("Simulation Control", expanded=True):
@@ -161,6 +166,74 @@ def create_diffusion_simulation_ui():
     # Run simulation button
     if st.button("Run Simulation", key="run_simulation"):
         run_diffusion_simulation()
+
+def apply_initial_condition():
+    """
+    Apply the selected initial condition to the graph without running a simulation.
+    
+    This function creates the initial condition based on user settings and displays it,
+    allowing users to visualize the starting point of a diffusion process.
+    """
+    ic_type = st.session_state.ic_type
+    amplitude = st.session_state.amplitude
+    
+    # Create initial values based on the selected type
+    if ic_type == "Delta Function":
+        # Use center_node from session state if available
+        if "center_node" in st.session_state and st.session_state.center_node in st.session_state.graph.nodes():
+            center = st.session_state.center_node
+        else:
+            # Use first node as fallback
+            center = list(st.session_state.graph.nodes())[0]
+        
+        initial_values = create_delta_initial_condition(
+            st.session_state.graph, 
+            center, 
+            amplitude=amplitude
+        )
+    elif ic_type == "Gaussian":
+        # Use center_node from session state if available
+        if "center_node" in st.session_state and st.session_state.center_node in st.session_state.graph.nodes():
+            center = st.session_state.center_node
+        else:
+            # Use first node as fallback
+            center = list(st.session_state.graph.nodes())[0]
+        
+        sigma = st.session_state.get('gaussian_sigma', 1.0)  # Default to 1.0 if not set
+        initial_values = create_gaussian_initial_condition(
+            st.session_state.graph, 
+            center, 
+            sigma=sigma, 
+            amplitude=amplitude, 
+            pos=st.session_state.graph_pos if "graph_pos" in st.session_state else None
+        )
+    else:  # Random
+        initial_values = {node: np.random.random() * amplitude for node in st.session_state.graph.nodes()}
+    
+    # Store the initial values in session state for visualization
+    st.session_state.node_values = initial_values
+    
+    # Enable diffusion visualization mode
+    st.session_state.show_diffusion = True
+    
+    # Initialize solutions dictionary with just the initial values
+    st.session_state.diffusion_solutions = {0.0: initial_values}
+    st.session_state.diffusion_time_points = [0.0]
+    st.session_state.current_time_index = 0
+    
+    # Set diffusion type if not already set
+    if "diffusion_type" not in st.session_state:
+        st.session_state.diffusion_type = "Initial Condition"
+    
+    # Store visualization type preference before rerunning
+    if "viz_type" in st.session_state:
+        st.session_state.saved_viz_type = st.session_state.viz_type
+    
+    # Notify the user
+    st.success("Initial condition applied.")
+    
+    # Rerun to update the visualization
+    st.rerun()
 
 def run_diffusion_simulation():
     """
@@ -310,6 +383,10 @@ def run_diffusion_simulation():
     
     # Report completion
     status_text.text(f"Simulation completed in {end_time - start_time:.2f} seconds.")
+    
+    # Store visualization type preference before rerunning
+    if "viz_type" in st.session_state:
+        st.session_state.saved_viz_type = st.session_state.viz_type
     
     # Enable diffusion visualization
     st.session_state.show_diffusion = True
