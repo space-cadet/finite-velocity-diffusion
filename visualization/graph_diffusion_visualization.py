@@ -237,6 +237,219 @@ def visualize_diffusion_3d(
     
     return fig
 
+def create_animated_diffusion(
+    G: nx.Graph,
+    pos: Dict,
+    solutions: Dict[float, Dict],
+    color_scale: str = "Viridis",
+    base_title: str = "Diffusion on Graph",
+    node_size: int = 10,
+    edge_width: int = 1
+) -> go.Figure:
+    """
+    Create an animated visualization of diffusion on a graph over time.
+    
+    Parameters:
+    -----------
+    G : nx.Graph
+        The graph to visualize
+    pos : Dict
+        Dictionary of node positions
+    solutions : Dict[float, Dict]
+        Dictionary mapping time points to node values dictionaries
+    color_scale : str
+        Plotly color scale name
+    base_title : str
+        Base title for the visualization
+    node_size : int
+        Size of the nodes in the visualization
+    edge_width : int
+        Width of the edges in the visualization
+    
+    Returns:
+    --------
+    go.Figure
+        Plotly figure with animation capabilities
+    """
+    # Get all time points sorted
+    time_points = sorted(solutions.keys())
+    
+    if not time_points:
+        raise ValueError("No time points provided in solutions")
+    
+    # Create edge trace (static across all frames)
+    edge_x = []
+    edge_y = []
+    
+    for edge in G.edges():
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        
+        # Add the coordinates of each edge point
+        edge_x.extend([x0, x1, None])
+        edge_y.extend([y0, y1, None])
+    
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=edge_width, color='#888'),
+        hoverinfo='none',
+        mode='lines'
+    )
+    
+    # Define a function to create a frame for a given time point
+    def create_frame_data(t):
+        node_values = solutions[t]
+        node_x = []
+        node_y = []
+        node_color = []
+        node_text = []
+        
+        for node in G.nodes():
+            x, y = pos[node]
+            node_x.append(x)
+            node_y.append(y)
+            node_color.append(node_values[node])
+            
+            # Add node information for hover
+            if isinstance(node, tuple):
+                node_label = f"({node[0]}, {node[1]})"
+            else:
+                node_label = str(node)
+            
+            node_text.append(f"Node: {node_label}<br>Value: {node_values[node]:.4f}<br>Degree: {G.degree(node)}")
+        
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers',
+            hoverinfo='text',
+            text=node_text,
+            marker=dict(
+                showscale=True,
+                colorscale=color_scale,
+                color=node_color,
+                size=node_size,
+                colorbar=dict(
+                    thickness=15,
+                    title="Diffusion Value"
+                ),
+                line=dict(width=2)
+            )
+        )
+        
+        return [edge_trace, node_trace]
+    
+    # Create the base figure with the first frame
+    fig = go.Figure(
+        data=create_frame_data(time_points[0]),
+        layout=go.Layout(
+            title=dict(text=f"{base_title} (t = {time_points[0]:.3f})", font=dict(size=16)),
+            showlegend=False,
+            hovermode='closest',
+            margin=dict(t=40),
+            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            template="plotly_white"
+        )
+    )
+    
+    # Add frames for animation
+    frames = []
+    for t in time_points:
+        frame = go.Frame(
+            data=create_frame_data(t),
+            layout=go.Layout(
+                title=dict(text=f"{base_title} (t = {t:.3f})")
+            ),
+            name=f"t={t:.3f}"
+        )
+        frames.append(frame)
+    
+    fig.frames = frames
+    
+    # Add animation controls
+    sliders = [
+        dict(
+            active=0,
+            yanchor="top",
+            xanchor="left",
+            currentvalue=dict(
+                font=dict(size=12),
+                prefix="Time: ",
+                visible=True,
+                xanchor="right"
+            ),
+            transition=dict(duration=150, easing="cubic-in-out"),
+            pad=dict(b=10, t=50),
+            len=0.9,
+            x=0.1,
+            y=0,
+            steps=[
+                dict(
+                    method="animate",
+                    args=[
+                        [f"t={t:.3f}"],
+                        dict(
+                            frame=dict(duration=200, redraw=True),
+                            mode="immediate",
+                            transition=dict(duration=150, easing="cubic-in-out")
+                        )
+                    ],
+                    label=f"{t:.2f}"
+                )
+                for t in time_points
+            ]
+        )
+    ]
+    
+    # Add play and pause buttons
+    updatemenus = [
+        dict(
+            type="buttons",
+            showactive=False,
+            buttons=[
+                dict(
+                    label="Play",
+                    method="animate",
+                    args=[
+                        None,
+                        dict(
+                            frame=dict(duration=200, redraw=True),
+                            fromcurrent=True,
+                            mode="immediate",
+                            transition=dict(duration=150, easing="cubic-in-out")
+                        )
+                    ]
+                ),
+                dict(
+                    label="Pause",
+                    method="animate",
+                    args=[
+                        [None],
+                        dict(
+                            frame=dict(duration=0, redraw=True),
+                            mode="immediate",
+                            transition=dict(duration=0)
+                        )
+                    ]
+                )
+            ],
+            direction="left",
+            pad=dict(r=10, t=87),
+            x=0.1,
+            y=0,
+            xanchor="right",
+            yanchor="top"
+        )
+    ]
+    
+    # Update layout with animation controls
+    fig.update_layout(
+        updatemenus=updatemenus,
+        sliders=sliders
+    )
+    
+    return fig
+
 def visualize_diffusion_comparison(
     G: nx.Graph,
     pos: Dict,

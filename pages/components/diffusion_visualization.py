@@ -71,8 +71,8 @@ def _create_diffusion_result_ui():
             st.session_state.current_time_index = 0
             current_time = st.session_state.diffusion_time_points[0]
         
-        # Animation controls - only show if we have multiple time points
-        if len(st.session_state.diffusion_time_points) > 1:
+        # Animation controls - only show if we have multiple time points and not using the built-in animation
+        if len(st.session_state.diffusion_time_points) > 1 and st.session_state.get("viz_type") != "2D Animated":
             # Create placeholders for animation components
             st.session_state.animation_status = st.empty()
             st.session_state.animation_progress = st.empty()
@@ -269,7 +269,11 @@ def _create_visualization_options(is_diffusion: bool):
         Whether we're visualizing diffusion results (True) or just structure (False)
     """
     # Import visualization functions
-    from visualization.graph_diffusion_visualization import visualize_diffusion_2d, visualize_diffusion_3d
+    from visualization.graph_diffusion_visualization import (
+        visualize_diffusion_2d,
+        visualize_diffusion_3d,
+        create_animated_diffusion
+    )
     
     col1, col2 = st.columns([3, 1])
     
@@ -291,13 +295,25 @@ def _create_visualization_options(is_diffusion: bool):
         if default_viz_type not in ["2D Static", "2D Interactive", "3D Interactive"]:
             default_viz_type = "2D Interactive"
         
-        # Create the radio selector with the appropriate default
-        viz_type = st.radio(
-            "Visualization Type",
-            ["2D Static", "2D Interactive", "3D Interactive"],
-            key="viz_type",
-            index=["2D Static", "2D Interactive", "3D Interactive"].index(default_viz_type)
-        )
+        # Show different visualization options based on whether we're visualizing diffusion results
+        if is_diffusion and "diffusion_time_points" in st.session_state and len(st.session_state.diffusion_time_points) > 1:
+            # For diffusion results with multiple time points, offer the animated option
+            viz_type = st.radio(
+                "Visualization Type",
+                ["2D Static", "2D Interactive", "3D Interactive", "2D Animated"],
+                key="viz_type",
+                index=["2D Static", "2D Interactive", "3D Interactive", "2D Animated"].index(default_viz_type) 
+                      if default_viz_type in ["2D Static", "2D Interactive", "3D Interactive", "2D Animated"] else 1
+            )
+        else:
+            # For graph structure or single time point, show regular options
+            viz_type = st.radio(
+                "Visualization Type",
+                ["2D Static", "2D Interactive", "3D Interactive"],
+                key="viz_type",
+                index=["2D Static", "2D Interactive", "3D Interactive"].index(default_viz_type)
+                      if default_viz_type in ["2D Static", "2D Interactive", "3D Interactive"] else 1
+            )
     
     with col2:
         # Node color options
@@ -430,7 +446,7 @@ def _display_visualization(
         st.plotly_chart(fig, use_container_width=True, height=height or 600)
     
     # For 3D Interactive view
-    else:  # 3D Interactive
+    elif viz_type == "3D Interactive":
         # 3D plot with Plotly
         fig = visualize_diffusion_3d(
             st.session_state.graph, 
@@ -442,6 +458,33 @@ def _display_visualization(
             edge_width
         )
         st.plotly_chart(fig, use_container_width=True, height=height or 700)
+    
+    # For 2D Animated view (only available for diffusion results with multiple time points)
+    elif viz_type == "2D Animated" and is_diffusion and "diffusion_solutions" in st.session_state:
+        # Import the create_animated_diffusion function
+        from visualization.graph_diffusion_visualization import create_animated_diffusion
+        
+        # Create animated visualization
+        diffusion_type = st.session_state.get('diffusion_type', 'Diffusion')
+        base_title = f"Diffusion on Graph ({diffusion_type})"
+        
+        # Create the animated figure
+        fig = create_animated_diffusion(
+            st.session_state.graph,
+            st.session_state.graph_pos,
+            st.session_state.diffusion_solutions,
+            color_scale,
+            base_title,
+            node_size,
+            edge_width
+        )
+        
+        # Set a larger height for better visibility of animation controls
+        animated_height = height or 700
+        st.plotly_chart(fig, use_container_width=True, height=animated_height)
+        
+        # Add note about animation controls
+        st.info("Use the play button and slider at the bottom of the chart to control the animation.")
 
 def _display_graph_metrics():
     """
