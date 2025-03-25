@@ -26,6 +26,7 @@ The core numerical solvers implement the finite difference methods for the teleg
 
 - **FiniteVelocityDiffusion1D**: Solves the 1D telegrapher's equation using a finite difference scheme
 - **FiniteVelocityDiffusion2D**: Extends the solution to 2D domains
+- **GraphDiffusionSolver**: (Planned) Implements diffusion processes on graph structures
 
 These classes encapsulate:
 - Domain discretization
@@ -128,7 +129,14 @@ Common functionality used across the system:
    - Error analysis tools
    - Educational information about numerical properties
 
-4. **Component Structure**:
+4. **Graph Diffusion Page (03_Graph_Diffusion.py)** (Planned):
+   - Graph construction and visualization
+   - Ordinary diffusion on graphs
+   - Finite-velocity diffusion on graphs
+   - Optional: Diffusion with potential term
+   - Comparative analysis between different diffusion models on graphs
+
+5. **Component Structure**:
    - Each page has a dedicated components module
    - Reusable UI components are organized by functionality
    - Clear separation between UI construction and logic

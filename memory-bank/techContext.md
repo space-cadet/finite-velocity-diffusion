@@ -10,7 +10,8 @@ The project is built using the following key technologies:
 4. **Matplotlib**: Static plotting and visualization
 5. **Plotly**: Interactive plots and animations
 6. **Streamlit**: Web application framework for the interactive multipage UI
-7. **JSON**: File format for parameter persistence
+7. **NetworkX**: Graph creation, manipulation, and analysis for the graph diffusion features
+8. **JSON**: File format for parameter persistence
 
 ## Development Environment
 
@@ -28,6 +29,7 @@ scipy>=1.10.0
 matplotlib>=3.7.0
 streamlit>=1.24.0
 plotly>=5.13.0
+networkx>=3.0.0
 ```
 
 ### Installation
@@ -56,9 +58,11 @@ finite-velocity-diffusion/
 ├── pages/                     # Additional pages for the multipage app
 │   ├── 01_Parameter_Analysis.py   # Parameter analysis tools
 │   ├── 02_Numerical_Analysis.py   # Numerical analysis tools
+│   ├── 03_Graph_Diffusion.py      # Graph diffusion tools (planned)
 │   └── components/                # Reusable UI components for pages
 │       ├── parameter_analysis.py  # Parameter analysis components
-│       └── numerical_analysis.py  # Numerical analysis components
+│       ├── numerical_analysis.py  # Numerical analysis components
+│       └── graph_diffusion.py     # Graph diffusion components (planned)
 │
 ├── saved_params.json          # Persistent storage for user parameters
 ├── minimal_app.py             # Simplified version of the app
@@ -70,7 +74,8 @@ finite-velocity-diffusion/
 ├── solver/                    # Core numerical solvers
 │   ├── __init__.py
 │   ├── one_dimensional.py     # 1D solver implementation
-│   └── two_dimensional.py     # 2D solver implementation
+│   ├── two_dimensional.py     # 2D solver implementation
+│   └── graph_solver.py        # Graph-based diffusion solvers (planned)
 │
 ├── simulation/                # Simulation management
 │   ├── __init__.py
@@ -88,13 +93,15 @@ finite-velocity-diffusion/
 │
 └── visualization/             # Visualization components
     ├── __init__.py
-    └── streamlit_visualization.py  # Visualization functions for Streamlit
+    ├── streamlit_visualization.py  # Visualization functions for Streamlit
+    └── graph_visualization.py      # Graph visualization functions (planned)
 ```
 
 ## Technical Constraints
 
 1. **Performance Considerations**:
    - Computational intensity increases with grid resolution, especially in 2D
+   - Graph-based simulations can be resource-intensive for large graphs
    - Interactive performance requires careful balance of accuracy vs. speed
    - Animation rendering can be memory-intensive for long simulations
    - Parameter analysis tools use approximations for interactive responsiveness

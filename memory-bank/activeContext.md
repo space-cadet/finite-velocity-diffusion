@@ -8,12 +8,17 @@ The project is now a fully functional multipage Streamlit application with:
 2. **Parameter Analysis Page**: Tools to explore how different parameters affect propagation speed, wave-diffusion behavior, and stability conditions
 3. **Numerical Analysis Page**: Tools for convergence and error analysis
 
+We are now planning to add a new section focused on graph-based diffusion:
+
+4. **Graph Diffusion Page**: A new page to explore diffusion on graphs using both ordinary and finite-velocity diffusion models, with and without potential terms
+
 Current focus areas include:
 
-1. **Memory Bank Maintenance**: Ensuring the memory bank documentation is up-to-date with the latest changes
-2. **Potential Optimizations**: Identifying opportunities to enhance performance, especially for 2D simulations
-3. **UI Refinements**: Continuing to improve the user interface for better usability
-4. **Additional Analysis Tools**: Considering additional tools for deeper analysis of solution properties
+1. **Graph-Based Diffusion Implementation**: Developing the new graph diffusion features
+2. **Memory Bank Maintenance**: Ensuring the memory bank documentation is up-to-date with the latest changes
+3. **Potential Optimizations**: Identifying opportunities to enhance performance, especially for 2D simulations
+4. **UI Refinements**: Continuing to improve the user interface for better usability
+5. **Additional Analysis Tools**: Considering additional tools for deeper analysis of solution properties
 
 ## Recent Changes
 
@@ -22,6 +27,7 @@ Current focus areas include:
 3. **Parameter Analysis Tools**: Addition of tools to analyze how parameters affect propagation speed, wave-diffusion behavior, and stability conditions
 4. **Numerical Analysis Tools**: Addition of tools to analyze convergence and error properties of numerical solutions
 5. **Component Organization**: Improved organization with modular components for each page
+6. **Planning Graph Diffusion Section**: Development of a comprehensive plan to implement diffusion on graphs
 
 ## Active Decisions
 
@@ -29,6 +35,7 @@ Current focus areas include:
    - Main page focuses on running simulations and visualizing results
    - Parameter Analysis page provides tools for understanding parameter relationships
    - Numerical Analysis page provides tools for analyzing numerical properties
+   - Graph Diffusion page will focus on exploring diffusion processes on graph structures
 
 2. **Parameter Persistence Strategy**:
    - File-based persistence using JSON storage
@@ -49,9 +56,14 @@ Current focus areas include:
 
 ### Short-term Tasks
 
-1. **Bug Fixes**: Address any issues identified in the multipage app structure
-2. **Documentation Updates**: Keep memory bank documentation current with ongoing changes
-3. **Testing Enhancements**: Expand test coverage for all components
+1. **Graph Diffusion Implementation**: 
+   - Create the new graph diffusion page and components
+   - Implement graph construction functionality
+   - Develop graph-based diffusion solvers
+   - Create visualization components for graphs
+2. **Bug Fixes**: Address any issues identified in the multipage app structure
+3. **Documentation Updates**: Keep memory bank documentation current with ongoing changes
+4. **Testing Enhancements**: Expand test coverage for all components
 
 ### Medium-term Goals
 
@@ -74,9 +86,13 @@ Current focus areas include:
 
 ## Current Questions
 
-1. How can we optimize 2D simulations for better interactive performance without sacrificing accuracy?
-2. What additional visualization approaches might enhance understanding of wave-like diffusion behavior?
-3. How can we better quantify and visualize the differences between classical and finite velocity diffusion?
-4. What additional parameter analysis tools would be most valuable for users?
+1. What's the most efficient way to implement the graph Laplacian for diffusion problems?
+2. How do stability conditions for finite-velocity diffusion translate to graph structures?
+3. What types of graph structures would be most educational for demonstrating diffusion differences?
+4. How can we optimize graph-based simulations for interactive performance?
+5. How can we optimize 2D simulations for better interactive performance without sacrificing accuracy?
+6. What additional visualization approaches might enhance understanding of wave-like diffusion behavior?
+7. How can we better quantify and visualize the differences between classical and finite velocity diffusion?
+8. What additional parameter analysis tools would be most valuable for users?
 
 This active context will be updated as development progresses and new insights emerge.

@@ -52,6 +52,7 @@
 
 ### Features
 
+- ⬜ Graph-based diffusion solvers (planned for immediate implementation)
 - ⬜ 3D solver implementation
 - ⬜ Additional boundary condition types
 - ⬜ Implicit solvers for improved stability
@@ -79,6 +80,8 @@
 
 The project is in a functional state with a multipage Streamlit application. The main page provides interactive 1D and 2D simulations with various visualization options. The Parameter Analysis page offers tools to explore parameter relationships and stability conditions. The Numerical Analysis page provides tools for analyzing convergence and error properties.
 
+A new Graph Diffusion page is now being planned to explore diffusion processes on graph structures. This will include both ordinary and finite-velocity diffusion models, with and without potential terms.
+
 Parameter persistence has been implemented using file-based storage, allowing user settings to be remembered between sessions. The application structure has been modularized with a clear separation between pages, components, and core functionality.
 
 Documentation is being enhanced through the memory bank system to facilitate ongoing development. No critical bugs have been identified in the core solving functionality, though there are opportunities for optimization and feature expansion.
@@ -93,9 +96,14 @@ Documentation is being enhanced through the memory bank system to facilitate ong
 
 ## Next Milestones
 
-1. **Enhanced Testing**: Develop comprehensive test suite for all solver components
-2. **Documentation Completion**: Finalize memory bank documentation and enhance code comments
-3. **Performance Optimization**: Identify and implement key performance improvements
-4. **Additional Analysis Tools**: Develop quantitative metrics for solution analysis
+1. **Graph-Based Diffusion**: Implement diffusion on graphs functionality, including:
+   - Graph construction and representation
+   - Ordinary and finite-velocity diffusion on graphs
+   - Visualization of diffusion processes on graphs
+   - Integration with the existing app structure
+2. **Enhanced Testing**: Develop comprehensive test suite for all solver components
+3. **Documentation Completion**: Finalize memory bank documentation and enhance code comments
+4. **Performance Optimization**: Identify and implement key performance improvements
+5. **Additional Analysis Tools**: Develop quantitative metrics for solution analysis
 
 This progress report will be updated as development continues.
