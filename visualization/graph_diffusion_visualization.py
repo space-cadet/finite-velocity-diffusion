@@ -74,7 +74,19 @@ def visualize_diffusion_2d(
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
-        node_color.append(node_values[node])
+        
+        # Handle potential key mismatch (integer vs string/tuple nodes)
+        if node in node_values:
+            value = node_values[node]
+        else:
+            # Try string conversion as fallback
+            try:
+                str_node = str(node)
+                value = node_values.get(str_node, 0.0)
+            except:
+                value = 0.0
+                
+        node_color.append(value)
         
         # Add node information for hover
         if isinstance(node, tuple):
@@ -82,7 +94,7 @@ def visualize_diffusion_2d(
         else:
             node_label = str(node)
         
-        node_text.append(f"Node: {node_label}<br>Value: {node_values[node]:.4f}<br>Degree: {G.degree(node)}")
+        node_text.append(f"Node: {node_label}<br>Value: {value:.4f}<br>Degree: {G.degree(node)}")
     
     node_trace = go.Scatter(
         x=node_x, y=node_y,
@@ -156,7 +168,18 @@ def visualize_diffusion_3d(
     pos_3d = {}
     for node, position in pos.items():
         x, y = position
-        z = node_values[node]  # Use the diffusion value as z-coordinate
+        
+        # Handle potential key mismatch (integer vs string/tuple nodes)
+        if node in node_values:
+            z = node_values[node]  # Use the diffusion value as z-coordinate
+        else:
+            # Try string conversion as fallback
+            try:
+                str_node = str(node)
+                z = node_values.get(str_node, 0.0)
+            except:
+                z = 0.0
+        
         pos_3d[node] = (x, y, z)
     
     # Create edge trace
@@ -200,8 +223,19 @@ def visualize_diffusion_3d(
         else:
             node_label = str(node)
         
-        node_text.append(f"Node: {node_label}<br>Value: {node_values[node]:.4f}<br>Degree: {G.degree(node)}")
-        node_color.append(node_values[node])
+        # Handle potential key mismatch (integer vs string/tuple nodes)
+        if node in node_values:
+            value = node_values[node]
+        else:
+            # Try string conversion as fallback
+            try:
+                str_node = str(node)
+                value = node_values.get(str_node, 0.0)
+            except:
+                value = 0.0
+        
+        node_text.append(f"Node: {node_label}<br>Value: {value:.4f}<br>Degree: {G.degree(node)}")
+        node_color.append(value)
     
     node_trace = go.Scatter3d(
         x=node_x,
@@ -308,7 +342,19 @@ def create_animated_diffusion(
             x, y = pos[node]
             node_x.append(x)
             node_y.append(y)
-            node_color.append(node_values[node])
+            
+            # Handle potential key mismatch (integer vs string/tuple nodes)
+            if node in node_values:
+                value = node_values[node]
+            else:
+                # Try string conversion as fallback
+                try:
+                    str_node = str(node)
+                    value = node_values.get(str_node, 0.0)
+                except:
+                    value = 0.0
+            
+            node_color.append(value)
             
             # Add node information for hover
             if isinstance(node, tuple):
@@ -316,7 +362,7 @@ def create_animated_diffusion(
             else:
                 node_label = str(node)
             
-            node_text.append(f"Node: {node_label}<br>Value: {node_values[node]:.4f}<br>Degree: {G.degree(node)}")
+            node_text.append(f"Node: {node_label}<br>Value: {value:.4f}<br>Degree: {G.degree(node)}")
         
         node_trace = go.Scatter(
             x=node_x, y=node_y,
@@ -548,8 +594,26 @@ def visualize_diffusion_comparison(
         else:
             node_label = str(node)
         
-        value1 = values1[node]
-        value2 = values2[node]
+        # Handle potential key mismatch (integer vs string/tuple nodes)
+        if node in values1:
+            value1 = values1[node]
+        else:
+            # Try string conversion as fallback
+            try:
+                str_node = str(node)
+                value1 = values1.get(str_node, 0.0)
+            except:
+                value1 = 0.0
+                
+        if node in values2:
+            value2 = values2[node]
+        else:
+            # Try string conversion as fallback
+            try:
+                str_node = str(node)
+                value2 = values2.get(str_node, 0.0)
+            except:
+                value2 = 0.0
         
         node_text1.append(f"Node: {node_label}<br>Value: {value1:.4f}")
         node_text2.append(f"Node: {node_label}<br>Value: {value2:.4f}")

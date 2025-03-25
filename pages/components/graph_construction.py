@@ -37,6 +37,7 @@ def initialize_node_values(G: nx.Graph, initialization_type="center_peak"):
     from solver.graph_solver import create_gaussian_initial_condition
     
     # Initialize all nodes to zero
+    # Use consistent string representation for node keys to ensure compatibility
     st.session_state.node_values = {node: 0.0 for node in G.nodes()}
     
     # Also initialize random node colors for visualization consistency

@@ -408,6 +408,32 @@ def _display_visualization(
     height : Optional[int]
         Height of the visualization (for interactive plots)
     """
+    # Ensure node_colors contains values for all nodes in the graph
+    if "graph" in st.session_state:
+        for node in st.session_state.graph.nodes():
+            if node not in node_colors:
+                # Add default value for missing nodes
+                node_colors[node] = 0.0
+    """
+    Display the graph visualization with the specified options.
+    
+    Parameters:
+    -----------
+    viz_type : str
+        Type of visualization (2D Static, 2D Interactive, 3D Interactive)
+    node_colors : Dict
+        Dictionary of node color values
+    color_scale : str
+        Color scale name
+    color_title : str
+        Title for the color scale
+    node_size : int
+        Size of nodes in the visualization
+    edge_width : int
+        Width of edges in the visualization
+    height : Optional[int]
+        Height of the visualization (for interactive plots)
+    """
     from visualization.graph_diffusion_visualization import visualize_diffusion_2d, visualize_diffusion_3d
     
     is_diffusion = "show_diffusion" in st.session_state and st.session_state.show_diffusion
