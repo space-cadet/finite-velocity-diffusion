@@ -316,8 +316,10 @@ def create_stability_analysis_tab(default_params):
             ),
             colorscale='Viridis',
             colorbar=dict(
-                title="Courant Number",
-                titleside="right",
+                title=dict(
+                    text="Courant Number",
+                    side="right"
+                )
             ),
             hovertemplate="D: %{x:.2f}<br>τ: %{y:.2f}<br>Courant: %{z:.3f}<extra></extra>",
         ))

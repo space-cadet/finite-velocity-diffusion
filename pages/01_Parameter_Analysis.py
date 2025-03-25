@@ -45,7 +45,7 @@ with tab2:
     create_wave_diffusion_spectrum_tab(saved_params)
 
 with tab3:
-    create_stability_analysis_tab(DEFAULT_PARAMETERS),
+    create_stability_analysis_tab(DEFAULT_PARAMETERS)
 # Footer
 st.markdown("---")
 st.markdown("""
