@@ -24,14 +24,36 @@ Current focus areas include:
 
 ## Recent Changes
 
-1. **Graph Diffusion Implementation**: Completed implementation of the graph diffusion functionality:
+1. **Graph Diffusion Improvements**:
+   - Added built-in Plotly animations for smoother graph diffusion visualization
+   - Implemented "Apply Initial Condition" button for easier visualization of starting states
+   - Enhanced animation controls with Start, Pause, Stop, and Reset functionality
+   - Fixed compatibility issues with different graph types (grid, Erdős–Rényi, etc.)
+   - Improved error handling for node ID consistency across different graph structures
+   - Added visualization persistence between different operations
+
+2. **Animation Enhancements**:
+   - Created a new animation system using Plotly's built-in frame-based animation capabilities
+   - Added direct "2D Animated" visualization option for smooth, client-side animations
+   - Implemented animation speed control for better user experience
+   - Improved stability and reduced flashing during animation playback
+   - Added proper animation controls with play/pause buttons and time slider
+
+3. **Node Value Handling**:
+   - Fixed node ID compatibility issues between different graph types
+   - Implemented robust handling of integer, string, and tuple node IDs
+   - Added fallback mechanisms for missing node values
+   - Enhanced visualization functions to handle inconsistent node types
+   - Improved error handling to prevent KeyError exceptions
+
+4. **Graph Diffusion Implementation**: Previously completed implementation of the graph diffusion functionality:
    - Created the core solver classes for graph-based diffusion in `solver/graph_solver.py`
    - Implemented specialized visualization functions in `visualization/graph_diffusion_visualization.py`
    - Developed modular UI components for graph construction, diffusion simulation, and result visualization
    - Added support for multiple initial condition types and diffusion models
    - Implemented time evolution visualization for diffusion on graphs
 
-2. **Modular Architecture**: Improved the code organization with a more modular structure:
+5. **Modular Architecture**: Improved the code organization with a more modular structure:
    - Separated UI components into focused files
    - Created specialized visualization functions for graph diffusion
    - Separated graph construction from diffusion simulation controls
@@ -39,45 +61,75 @@ Current focus areas include:
 
 ## Active Decisions
 
-1. **Modular Architecture**: 
+1. **Animation Strategy**:
+   - Using Plotly's built-in animation capabilities for smoother transitions
+   - Creating frame-based animations to avoid Streamlit's page refreshes
+   - Supporting both custom Streamlit controls and native Plotly animation controls
+   - Optimizing animation parameters for better performance
+
+2. **Modular Architecture**: 
    - Adopting a more modular approach with focused components
    - Separating UI components from core solver logic
    - Using specialized visualization functions for different contexts
+   - Ensuring proper encapsulation of functionality for maintainability
 
-2. **Diffusion Models on Graphs**:
+3. **Node ID Compatibility**:
+   - Implementing robust node ID handling across different graph types
+   - Using flexible key lookups to handle integer, string, and tuple node IDs
+   - Adding fallback mechanisms for missing or inconsistent keys
+   - Ensuring visualization functions work with all graph structures
+
+4. **Diffusion Models on Graphs**:
    - Supporting multiple diffusion models (ordinary, finite-velocity, with potential)
    - Implementing stability checks specific to each model
    - Providing educational information about the differences between models
+   - Ensuring model parameters can be easily adjusted and visualized
 
-3. **Visualization Strategy**:
-   - Offering multiple visualization options (2D static, 2D interactive, 3D interactive)
+5. **Visualization Strategy**:
+   - Offering multiple visualization options (2D static, 2D interactive, 3D interactive, animated)
    - Using node colors to represent diffusion values
-   - Supporting time evolution visualization with sliders and animation
+   - Supporting time evolution visualization with sliders and animations
+   - Providing appropriate controls for each visualization type
 
-4. **Development Priorities**:
+6. **Development Priorities**:
    - Focus on educational value and parameter exploration tools
    - Balance between computational performance and interactive responsiveness
    - Maintain modularity for future extensions
+   - Improve error handling and user experience
 
 ## Next Steps
 
 ### Short-term Tasks
 
-1. **Comparative Visualization**: 
+1. **Animation Refinements**:
+   - Further optimize Plotly animation parameters for smoother playback
+   - Add animation presets for educational demonstration
+   - Implement animation export capabilities for sharing
+
+2. **Comparative Visualization**: 
    - Add side-by-side comparison of different diffusion models on the same graph
    - Implement quantitative comparison metrics
+   - Create animated comparisons between models
 
-2. **Performance Optimization**:
+3. **Performance Optimization**:
    - Improve performance for large graph simulations
    - Implement efficient storage strategies for time evolution data
+   - Optimize matrix operations for graph Laplacians
 
-3. **Documentation Updates**: 
+4. **Error Handling**:
+   - Add more robust error handling for edge cases
+   - Improve user feedback for numerical issues
+   - Add graceful degradation for large graph simulations
+
+5. **Documentation Updates**: 
    - Update memory bank documentation with the latest changes
    - Enhance code comments and docstrings
+   - Add documentation on the animation capabilities
 
-4. **Testing Enhancements**: 
+6. **Testing Enhancements**: 
    - Expand test coverage for graph diffusion components
    - Test edge cases and large-scale simulations
+   - Verify animation behavior across different browsers
 
 ### Medium-term Goals
 
