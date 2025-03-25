@@ -9,7 +9,8 @@ The project is built using the following key technologies:
 3. **SciPy**: Used for specialized scientific computing functions
 4. **Matplotlib**: Static plotting and visualization
 5. **Plotly**: Interactive plots and animations
-6. **Streamlit**: Web application framework for the interactive UI
+6. **Streamlit**: Web application framework for the interactive multipage UI
+7. **JSON**: File format for parameter persistence
 
 ## Development Environment
 
@@ -52,6 +53,14 @@ pip install -r requirements.txt
 finite-velocity-diffusion/
 │
 ├── app.py                     # Main Streamlit application
+├── pages/                     # Additional pages for the multipage app
+│   ├── 01_Parameter_Analysis.py   # Parameter analysis tools
+│   ├── 02_Numerical_Analysis.py   # Numerical analysis tools
+│   └── components/                # Reusable UI components for pages
+│       ├── parameter_analysis.py  # Parameter analysis components
+│       └── numerical_analysis.py  # Numerical analysis components
+│
+├── saved_params.json          # Persistent storage for user parameters
 ├── minimal_app.py             # Simplified version of the app
 ├── minimal_streamlit_app.py   # Another minimal example
 ├── run_simulation.py          # Command-line simulation runner
@@ -79,7 +88,7 @@ finite-velocity-diffusion/
 │
 └── visualization/             # Visualization components
     ├── __init__.py
-    └── ...                    # Visualization modules
+    └── streamlit_visualization.py  # Visualization functions for Streamlit
 ```
 
 ## Technical Constraints
@@ -88,6 +97,7 @@ finite-velocity-diffusion/
    - Computational intensity increases with grid resolution, especially in 2D
    - Interactive performance requires careful balance of accuracy vs. speed
    - Animation rendering can be memory-intensive for long simulations
+   - Parameter analysis tools use approximations for interactive responsiveness
 
 2. **Numerical Stability**:
    - Solutions must satisfy the Courant condition (`sqrt(D*dt/(tau*dx^2)) <= 1`)
@@ -97,10 +107,12 @@ finite-velocity-diffusion/
 3. **Browser Limitations**:
    - Large animations may cause browser performance issues
    - Interactive visualizations of 2D solutions require optimization for responsiveness
+   - Multipage app navigation may reset some Streamlit states
 
 4. **Deployment Considerations**:
    - Streamlit Cloud has memory and computational limitations
    - Docker containerization may be needed for more complex deployments
+   - Parameter persistence requires write access to the file system
 
 ## Technical Design Decisions
 
@@ -111,6 +123,7 @@ finite-velocity-diffusion/
 
 2. **UI Framework**:
    - Streamlit chosen for rapid development and interactive features
+   - Multipage app structure for organizing different types of functionality
    - Reactive programming model simplifies state management
    - Component-based design for UI modularity
 
@@ -119,15 +132,23 @@ finite-velocity-diffusion/
      - Static plots for simple analysis and export
      - Interactive sliders for detailed inspection
      - Animations for dynamic behavior demonstration
+   - Parameter analysis tools with interactive visualization
 
 4. **State Management**:
    - Stateful solver objects to maintain solution across time steps
    - Intermediate solution storage for time evolution analysis
    - Progress callback mechanism for long-running computations
+   - File-based parameter persistence for remembering settings between sessions
+
+5. **Parameter Persistence**:
+   - JSON file format for simple, human-readable storage
+   - Automatic saving when parameters are changed
+   - Fallback to defaults if file is not available or corrupted
+   - Centralized parameter management in session state
 
 ## Development Workflows
 
-1. **Running the Application**:
+1. **Running the Main Application**:
    ```bash
    streamlit run app.py
    ```
@@ -142,4 +163,10 @@ finite-velocity-diffusion/
    python run_simulation.py
    ```
 
-This technical foundation provides a flexible and maintainable system for numerical simulation of the finite velocity diffusion equation.
+4. **Parameter Management**:
+   - Parameters are saved automatically when changed through the UI
+   - Default parameters are defined in utils.py
+   - Parameter persistence is managed through streamlit_ui/state_management.py
+   - saved_params.json stores the latest user settings
+
+This technical foundation provides a flexible and maintainable system for numerical simulation of the finite velocity diffusion equation, with special emphasis on educational value and interactive exploration.

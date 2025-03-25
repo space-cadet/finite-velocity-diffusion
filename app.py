@@ -1,5 +1,5 @@
 """
-Streamlit app for the finite velocity diffusion solver.
+Home page for the finite velocity diffusion solver multipage app.
 
 This app allows users to explore solutions to the finite velocity diffusion
 equation (telegrapher's equation) in both 1D and 2D, and compare them with
@@ -27,10 +27,17 @@ from visualization.streamlit_visualization import (
 )
 
 # Configure the Streamlit page
-st.set_page_config(page_title="Finite Velocity Diffusion Solver", layout="wide")
+st.set_page_config(
+    page_title="Finite Velocity Diffusion Solver",
+    page_icon="🌊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # Create the main UI components
 create_main_content()
+st.markdown("---")
+st.info("This is a multipage app. Use the navigation menu in the sidebar to explore additional features.")
 
 # Get parameters from sidebar
 params = create_sidebar_controls()
